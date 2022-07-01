@@ -31,7 +31,7 @@ function Bank() {
   const [account, setAccount] = useState();
   const [ethBalance, setEthBalance] = useState();
   const [bbseBalance, setBbseBalance] = useState();
-  const [isWalletConnect, setIsWalletConnected] = useState(false);
+  const [isWalletConnected, setIsWalletConnected] = useState(false);
   const [deposit, setDeposit] = useState();
   const [loan, setLoan] = useState();
   const [bankAllowance, setAllowance] = useState(0);
@@ -48,7 +48,6 @@ function Bank() {
     if (window.ethereum !== undefined) {
       const web3 = new Web3(window.ethereum);
       const netId = await web3.eth.net.getId();
-
       const accounts = await web3.eth.getAccounts();
       if (!account && accounts[0]) {
         // Initialize web3
@@ -214,10 +213,9 @@ function Bank() {
 
   const connectWalletHandler = async () => {
     if (window.ethereum !== undefined) {
-      const web3 = new Web3(window.ethereum);
       try {
         // Request account access if needed
-        await window.ethereum.enable();
+        await window.ethereum.request({ method: "eth_requestAccounts" });
         setIsWalletConnected(true);
       } catch (error) {
         console.error(error);
@@ -226,7 +224,6 @@ function Bank() {
       alert("Make sure you have MetaMask installed!");
     }
   };
-
   const connectWalletButton = (
     <Box textAlign="center">
       <Button
@@ -391,8 +388,7 @@ function Bank() {
                 color="text.secondary"
                 gutterBottom
               >
-                Approx. Current Interest (depending on current known block
-                number)
+                Accumulated Interest (based on current known block number)
               </Typography>
               <Typography variant="h5">
                 {web3.utils.fromWei(
@@ -611,9 +607,9 @@ function Bank() {
           Welcome to BBSEBank
         </Typography>
 
-        {isWalletConnect ? accountInfo : connectWalletButton}
+        {isWalletConnected ? accountInfo : connectWalletButton}
       </Paper>
-      {isWalletConnect ? (
+      {isWalletConnected ? (
         <Paper
           variant="outlined"
           sx={{ my: { xs: 3, md: 6 }, p: { xs: 2, md: 3 } }}
