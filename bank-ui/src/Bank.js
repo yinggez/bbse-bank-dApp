@@ -50,9 +50,7 @@ function Bank() {
       const netId = await web3.eth.net.getId();
 
       const accounts = await web3.eth.getAccounts();
-      if (!accounts[0]) {
-        alert("Login with MetaMask");
-      } else if (!account) {
+      if (!account && accounts[0]) {
         // Initialize web3
         setWeb3(web3);
         setBlockNumber(await web3.eth.getBlockNumber());
@@ -211,6 +209,7 @@ function Bank() {
       .call();
     setAllowance(allowance);
     setNewAllowance(0);
+    setBlockNumber(await web3.eth.getBlockNumber());
   };
 
   const connectWalletHandler = async () => {
@@ -399,7 +398,7 @@ function Bank() {
                 {web3.utils.fromWei(
                   (
                     avgBlockTime *
-                    (blockNumber - deposit.startTime) *
+                    (blockNumber - deposit.startTime + 1) *
                     ips *
                     (deposit.amount / minDeposit)
                   ).toString(),
