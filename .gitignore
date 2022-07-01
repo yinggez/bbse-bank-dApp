@@ -24,3 +24,5 @@ bank-ui/node_modules
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+
+bank-ui/src/abis
