@@ -19,15 +19,20 @@ import BBSEToken from "./abis/BBSEToken.json";
 import ETHBBSEPriceFeedOracle from "./abis/ETHBBSEPriceFeedOracle.json";
 
 function Bank() {
+  // Input field state vars
   const [newDeposit, setNewDeposit] = useState();
   const [newLoan, setNewLoan] = useState();
   const [newAllowance, setNewAllowance] = useState();
+
+  // General state vars
   const [web3, setWeb3] = useState();
   const [blockNumber, setBlockNumber] = useState();
 
+  // Contract vars
   const [bbseBank, setBankContract] = useState();
   const [bbseToken, setTokenContract] = useState();
 
+  // User related state vars
   const [account, setAccount] = useState();
   const [ethBalance, setEthBalance] = useState();
   const [bbseBalance, setBbseBalance] = useState();
@@ -36,6 +41,7 @@ function Bank() {
   const [loan, setLoan] = useState();
   const [bankAllowance, setAllowance] = useState(0);
 
+  // BBSE Bank state vars
   const [avgBlockTime, setAvgBlockTime] = useState(0);
   const [yearlyReturnRate, setYearlyReturnRate] = useState(0);
   const [collateralizationRate, setCollateralizationRate] = useState(0);
@@ -44,35 +50,40 @@ function Bank() {
   const [minDeposit, setMinDeposit] = useState(0);
   const [ethBBSERate, setETHBBSERate] = useState(0);
 
+  /*   Check MetaMask exists and user account connected
+       Initialize state variables
+  */
   const checkWalletConnection = async () => {
     if (window.ethereum !== undefined) {
       const web3 = new Web3(window.ethereum);
       const netId = await web3.eth.net.getId();
+      // Accounts available on MetaMask should be accesible
+      // if MetaMask is connected
       const accounts = await web3.eth.getAccounts();
+      // If account state var not initialized and MetMask connected
       if (!account && accounts[0]) {
         // Initialize web3
         setWeb3(web3);
         setBlockNumber(await web3.eth.getBlockNumber());
 
-        // Initalize token and oracle contracts
+        // Initalize contracts
         const bbseTokenContract = new web3.eth.Contract(
           BBSEToken.abi, // Contract ABI
           BBSEToken.networks[netId].address // Contract address
         );
         setTokenContract(bbseTokenContract);
-
         const oracleContract = new web3.eth.Contract(
           ETHBBSEPriceFeedOracle.abi, // Contract ABI
           ETHBBSEPriceFeedOracle.networks[netId].address // Contract address
         );
-
         // Initialize bank variables
         const bbseBankContract = new web3.eth.Contract(
           BBSEBank.abi, // Contract ABI
           BBSEBank.networks[netId].address // Contract address
         );
-
         setBankContract(bbseBankContract);
+
+        // Initialize BBBSE Bank state vars
         setYearlyReturnRate(
           await bbseBankContract.methods.yearlyReturnRate().call()
         );
@@ -122,6 +133,7 @@ function Bank() {
     checkWalletConnection();
   });
 
+  // Make deposit from user account
   const handleDeposit = async () => {
     try {
       await bbseBank?.methods.deposit().send({
@@ -139,6 +151,8 @@ function Bank() {
       console.log(e);
     }
   };
+
+  // Wihtdraw existing deposit
   const handleWithdraw = async () => {
     try {
       await bbseBank?.methods.withdraw().send({
@@ -155,6 +169,7 @@ function Bank() {
     }
   };
 
+  // Take loan from BBSE Bank
   const handleLoan = async () => {
     try {
       await bbseBank?.methods
@@ -168,6 +183,7 @@ function Bank() {
       const tokenBalance = await bbseToken.methods.balanceOf(account).call();
       setEthBalance(web3.utils.fromWei(balance, "ether"));
       setBbseBalance(web3.utils.fromWei(tokenBalance, "ether"));
+      // Update allowance state var after loan is taken
       const allowance = await bbseToken.methods
         .allowance(account, bbseBank._address)
         .call();
@@ -177,6 +193,8 @@ function Bank() {
       console.log(e);
     }
   };
+
+  // Pay back existing loan
   const handlePayLoan = async () => {
     try {
       await bbseBank?.methods.payLoan().send({
@@ -194,6 +212,7 @@ function Bank() {
     }
   };
 
+  // Set allowance from user to BBSE Bank
   const handleApprove = async () => {
     await bbseToken.methods
       .approve(
@@ -211,10 +230,11 @@ function Bank() {
     setBlockNumber(await web3.eth.getBlockNumber());
   };
 
+  // Handler to connect user MetaMask to app
   const connectWalletHandler = async () => {
     if (window.ethereum !== undefined) {
       try {
-        // Request account access if needed
+        // Request access to MetaMask accounts
         await window.ethereum.request({ method: "eth_requestAccounts" });
         setIsWalletConnected(true);
       } catch (error) {
@@ -224,6 +244,7 @@ function Bank() {
       alert("Make sure you have MetaMask installed!");
     }
   };
+  // Button to connect user MetaMask to app
   const connectWalletButton = (
     <Box textAlign="center">
       <Button
@@ -237,6 +258,7 @@ function Bank() {
     </Box>
   );
 
+  // User account details component
   const accountInfo = (
     <>
       <FormControl fullWidth style={{ marginTop: 10 }} variant="standard">
@@ -268,6 +290,7 @@ function Bank() {
     </>
   );
 
+  // Deposit, Loan, Approve intereactions component
   const interactionBoard = (
     <>
       <Typography
@@ -464,7 +487,8 @@ function Bank() {
                 </Typography>
                 <Typography variant="body2">
                   Collateralization Rate: {collateralizationRate} %<br></br>
-                  Loan Fee: {loanFee} %
+                  Loan Fee: {loanFee} % <br></br>
+                  ETH/BBSE Rate: {ethBBSERate}
                 </Typography>
               </CardContent>
             </Card>
