@@ -131,7 +131,7 @@ function Bank() {
 
   useEffect(() => {
     checkWalletConnection();
-  });
+  }, []);
 
   // Make deposit from user account
   const handleDeposit = async () => {
@@ -236,7 +236,7 @@ function Bank() {
       try {
         // Request access to MetaMask accounts
         await window.ethereum.request({ method: "eth_requestAccounts" });
-        setIsWalletConnected(true);
+        checkWalletConnection();
       } catch (error) {
         console.error(error);
       }
