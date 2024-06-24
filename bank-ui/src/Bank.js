@@ -628,7 +628,7 @@ function Bank() {
           marginBottom={5}
           fontWeight={600}
         >
-          Welcome to BBSEBank
+          Welcome to BBSEBank 2024
         </Typography>
 
         {isWalletConnected ? accountInfo : connectWalletButton}
