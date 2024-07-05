@@ -1,6 +1,6 @@
 import fetch from "node-fetch";
 import Web3 from "web3";
-import ETHBBSEPriceFeedOracle from "../build/contracts/ETHBBSEPriceFeedOracle.json";
+import ETHBBSEPriceFeedOracle from "../build/contracts/ETHBBSEPriceFeedOracle.json" assert { type: "json" };
 import dotenv from "dotenv";
 dotenv.config();
 
